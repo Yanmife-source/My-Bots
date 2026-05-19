@@ -2,7 +2,6 @@ from telegram import Update
 from telegram.ext import Application,CommandHandler,MessageHandler,filters,ContextTypes
 from typing import Final
 import logging
-import yfinance as yf
 import os
 from dotenv import load_dotenv
 
@@ -38,7 +37,7 @@ def main() -> None:
 
 
 
-# Define the command handler functions
+# Define the command handler functionsq
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Send a message when the command /start is issued."""
     user = update.effective_user
