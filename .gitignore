@@ -1,3 +1,8 @@
 .env
 test_portal.py
 .venv/
+# For csv files
+*.csv
+.*
+__pycache__/
+*.pyc
