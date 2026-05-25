@@ -24,20 +24,15 @@ def main():
     driver=webdriver.Chrome(service=service,options=options)
     
     # To navigate to the website
-    global base_url
-    base_url="https://jumia.com.ng"
+    base_url=f"https://jumia.com.ng/catalog/?q={product.replace(' ','+')}"
     driver.get(base_url)
     time.sleep(1.5)
 
     # Wait till the search bar is present
     print("Searching...")
-    search=WebDriverWait(driver,5).until(EC.element_to_be_clickable((By.ID,"fi-q")))
-    search.send_keys(product + Keys.ENTER)
-
     # TO wait for the page to load
     time.sleep(1.5)
-    # Parses he page for products name and price
-    print("Parsing...")
+   
     
     # Scraping logic here
     soup(driver)
@@ -46,6 +41,8 @@ def main():
     driver.quit()
 
 def soup(driver):
+     # Parses he page for products name and price
+    print("Parsing...")
     prices=[]
     current_page_url = driver.current_url
     tags=SoupStrainer('a')

@@ -15,12 +15,20 @@ def main():
             headless=False,
             executable_path="/usr/bin/chromium"
             )
-        context=browser.new_context()
+        extra_headers={
+            "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36"
+            }
+        context=browser.new_context(extra_http_headers=extra_headers)
         page=context.new_page()
-
-        page.goto(f"https://www.konga.com/search?search={product.replace(' ', '+')}",)
-        time.sleep(2.5)
-        browser.close
+        try:
+            url=f"https://www.konga.com/search?search={product.replace(' ', '+')}"
+            response=page.goto(url,wait_until="domcontentloaded",timeout=10000)
+            page.wait_for_timeout(2500) 
+            print(f"{page.url} | {response.status}:{response.status_text}")
+        except Exception as e:
+            sys.exit(f"Error scraping: {str(e)}")
+        finally:
+            browser.close()
 
 if __name__=="__main__":
     main()

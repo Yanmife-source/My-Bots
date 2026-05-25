@@ -93,7 +93,7 @@ async def main():
     
     print("\n📊 --- FINAL PRICE COMPARISON --- 📊")
     print(response.content)
-    
+    1
 
 if __name__ == "__main__":
     asyncio.run(main())
