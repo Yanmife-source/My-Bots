@@ -8,6 +8,28 @@ import time
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_groq import ChatGroq
 
+async def main():
+# Get product from command line
+    try:
+        product = sys.argv[1]
+        if len(sys.argv)>2:
+            sys.exit("Usage: python scraper_agent.py <product_name>")
+        
+    except IndexError:
+        sys.exit(
+            "No product specified.\n"
+            "Usage: python scraper_agent.py <product_name>\n"
+            "Example: python scraper_agent.py crocs"
+        )
+
+    print(f"Searching prices of : '{product}'...")
+    search_results=await search_product(product)
+    print("🤖 Finding the best deals with Llama3...")
+    print("\n📊 --- FINAL PRICE COMPARISON --- 📊")
+    print(search_results)
+   
+    1
+
 async def scrape_site(async_play,url):
     """Opens a URL, waits for JavaScript to load, and dumps all visible text."""
     browser = await async_play.chromium.launch(
@@ -31,39 +53,18 @@ async def scrape_site(async_play,url):
     finally:
         await browser.close()
     
-
-async def main():
-# Get product from command line
-    try:
-        product = sys.argv[1]
-        if len(sys.argv)>2:
-            sys.exit("Usage: python scraper_agent.py <product_name>")
-        
-    except IndexError:
-        sys.exit(
-            "No product specified.\n"
-            "Usage: python scraper_agent.py <product_name>\n"
-            "Example: python scraper_agent.py crocs"
-        )
-
-    # Build the search URL dynamically based on product
+async def search_product(product):
+     # Build the search URL dynamically based on product
     urls ={ "Konga":f"https://www.konga.com/search?search={product.replace(' ', '+')}",
         "Jumia":f"https://jumia.com.ng/catalog/?q={product.replace(' ','+')}",
         "Jiji":f"https://jiji.ng/search?query={product.replace(' ','+')}"
     }
-
-    print(f"Searching prices of : '{product}'...")
-    raw_site_text=""
-
-
-    # Define the llm
+     # Define the llm
     groq_llm = ChatGroq(
         model="meta-llama/llama-4-scout-17b-16e-instruct",
         api_key=os.environ.get("GROQ_API_KEY"),
         temperature=0.1
     )
-
-    print(f"Searching prices of : '{product}'...")
 
     raw_scraped_data="" 
     async with async_playwright() as ap:
@@ -83,18 +84,21 @@ async def main():
             1. Scan the text and extract items matching the user's query.
             2. Identify their prices in Nigerian Naira (₦).
             3. Compare the items across the platforms and output a clean summary.
-            4. Explicitly state which platform has the absolute cheapest option for the product."""),
+            4. Explicitly state which platform has the absolute cheapest option for the product
+             
+             CRITICAL FORMATTING RULES:
+            - You are responding to a user in a standard chat app (Telegram). 
+            - DO NOT use Markdown formatting (no asterisks **, no hashes #, no tables |).
+            - Use plain text spacing, emojis, and standard bullet points (-) to structure your answer cleanly.
+            - Keep the summary short, punchy, and easy to read on a mobile screen."""),
             ("user", "Analyze and compare the prices from this raw scraped text:\n\n{scraped_text}")
         ])
     
-    print("🤖 Finding the best deals with Llama3...")
+   
     chain = prompt | groq_llm
     response = await chain.ainvoke({"scraped_text": raw_scraped_data})
-    
-    print("\n📊 --- FINAL PRICE COMPARISON --- 📊")
-    print(response.content)
-    1
-
+    return response.content
+    ...
 if __name__ == "__main__":
     asyncio.run(main())
 
